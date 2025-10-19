@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Biblioteca - Escola Ginestal Machado</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-container">
+                        <img src="logo-ginestal-machado.png" alt="Logo Escola Ginestal Machado" class="school-logo">
+                    </div>
+                    <h1>Biblioteca Escolar</h1>
+                    <span class="school-name">Escola Ginestal Machado</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="livros">
+                <i class="fas fa-book"></i>
+                Livros
+            </button>
+            <button class="nav-tab" data-tab="requisicoes">
+                <i class="fas fa-hand-holding"></i>
+                Requisições
+            </button>
+            <button class="nav-tab" data-tab="utentes">
+                <i class="fas fa-users"></i>
+                Utentes
+            </button>
+            <button class="nav-tab" data-tab="emprestimos">
+                <i class="fas fa-exchange-alt"></i>
+                Empréstimos
+            </button>
+            <div class="dropdown">
+                <button class="nav-tab dropdown-btn" id="outrosBtn">
+                    <i class="fas fa-cog"></i>
+                    Outros
+                    <i class="fas fa-chevron-down" id="outrosChevron"></i>
+                </button>
+                <div class="dropdown-content" id="outrosDropdown">
+                    <button class="dropdown-item" data-tab="editoras">
+                        <i class="fas fa-building"></i>
+                        Editoras
+                    </button>
+                    <button class="dropdown-item" data-tab="codigos-postais">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Códigos Postais
+                    </button>
+                    <button class="dropdown-item" data-tab="idiomas">
+                        <i class="fas fa-language"></i>
+                        Idiomas
+                    </button>
+                    <button class="dropdown-item" data-tab="generos">
+                        <i class="fas fa-tags"></i>
+                        Géneros
+                    </button>
+                    <button class="dropdown-item" data-tab="autores">
+                        <i class="fas fa-user-edit"></i>
+                        Autores
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Livros Tab -->
+            <div id="livros" class="tab-content active">
+                <div class="section-header">
+                    <h2>Catálogo de Livros</h2>
+                    <button class="btn btn-primary" onclick="openModal('livroModal')">
+                        <i class="fas fa-plus"></i> Novo Livro
+                    </button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="searchLivros" placeholder="Pesquisar livros por título, autor, ISBN..." class="search-input">
+                    <button class="search-btn" onclick="searchLivros()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ISBN</th>
+                                <th>Título</th>
+                                <th>Autor</th>
+                                <th>Editora</th>
+                                <th>Género</th>
+                                <th>Idioma</th>
+                                <th>Ano</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="livrosTableBody">
+                            <!-- Dados carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Requisições Tab -->
+            <div id="requisicoes" class="tab-content">
+                <div class="section-header">
+                    <h2>Nova Requisição</h2>
+                </div>
+                
+                <div class="form-container">
+                    <form id="requisicaoForm" class="form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="numeroProcesso">Número de Processo do Utente</label>
+                                <input type="text" id="numeroProcesso" name="numeroProcesso" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" name="email" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="searchLivroRequisicao">Pesquisar Livro</label>
+                            <div class="search-container">
+                                <input type="text" id="searchLivroRequisicao" placeholder="Pesquisar por título, autor, ISBN..." class="search-input">
+                                <button type="button" class="search-btn" onclick="searchLivrosParaRequisicao()">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <select id="livroSelecionado" name="livroId" required>
+                                <option value="">Selecione um livro</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="codigoPostal">Código Postal</label>
+                                <input type="text" id="codigoPostal" name="codigoPostal" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataDevolucaoPrevista">Data de Devolução Prevista</label>
+                                <input type="date" id="dataDevolucaoPrevista" name="dataDevolucaoPrevista" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="observacoes">Observações</label>
+                            <textarea id="observacoes" name="observacoes" rows="3"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-hand-holding"></i> Requisitar Livro
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Utentes Tab -->
+            <div id="utentes" class="tab-content">
+                <div class="section-header">
+                    <h2>Gestão de Utentes</h2>
+                    <button class="btn btn-primary" onclick="openModal('utenteModal')">
+                        <i class="fas fa-user-plus"></i> Novo Utente
+                    </button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="searchUtentes" placeholder="Pesquisar utentes por nome, número de processo..." class="search-input">
+                    <button class="search-btn" onclick="searchUtentes()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nº Processo</th>
+                                <th>Nome</th>
+                                <th>Turma</th>
+                                <th>Ano</th>
+                                <th>Email</th>
+                                <th>Código Postal</th>
+                                <th>Rua</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="utentesTableBody">
+                            <!-- Dados carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empréstimos Tab -->
+            <div id="emprestimos" class="tab-content">
+                <div class="section-header">
+                    <h2>Gestão de Empréstimos</h2>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="searchEmprestimos" placeholder="Pesquisar empréstimos..." class="search-input">
+                    <button class="search-btn" onclick="searchEmprestimos()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="filters">
+                    <select id="statusFilter" onchange="filterEmprestimos()">
+                        <option value="">Todos os Status</option>
+                        <option value="ativo">Ativos</option>
+                        <option value="atrasado">Atrasados</option>
+                        <option value="devolvido">Devolvidos</option>
+                        <option value="cancelado">Cancelados</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nº Processo</th>
+                                <th>Utente</th>
+                                <th>Livro</th>
+                                <th>Data Requisição</th>
+                                <th>Devolução Prevista</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="emprestimosTableBody">
+                            <!-- Dados carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Editoras Tab -->
+            <div id="editoras" class="tab-content">
+                <div class="section-header">
+                    <h2>Gestão de Editoras</h2>
+                    <button class="btn btn-primary" onclick="openModal('editoraModal')">
+                        <i class="fas fa-plus"></i> Nova Editora
+                    </button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="searchEditoras" placeholder="Pesquisar editoras..." class="search-input">
+                    <button class="search-btn" onclick="searchEditoras()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Código Postal</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="editorasTableBody">
+                            <!-- Dados carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Códigos Postais Tab -->
+            <div id="codigos-postais" class="tab-content">
+                <div class="section-header">
+                    <h2>Gestão de Códigos Postais</h2>
+                    <button class="btn btn-primary" onclick="openModal('codigoPostalModal')">
+                        <i class="fas fa-plus"></i> Novo Código Postal
+                    </button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="searchCodigosPostais" placeholder="Pesquisar códigos postais..." class="search-input">
+                    <button class="search-btn" onclick="searchCodigosPostais()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Localidade</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="codigosPostaisTableBody">
+                            <!-- Dados carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Idiomas Tab -->
+            <div id="idiomas" class="tab-content">
+                <div class="section-header">
+                    <h2>Gestão de Idiomas</h2>
+                    <button class="btn btn-primary" onclick="openModal('idiomaModal')">
+                        <i class="fas fa-plus"></i> Novo Idioma
+                    </button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="searchIdiomas" placeholder="Pesquisar idiomas..." class="search-input">
+                    <button class="search-btn" onclick="searchIdiomas()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Código</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="idiomasTableBody">
+                            <!-- Dados carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Géneros Tab -->
+            <div id="generos" class="tab-content">
+                <div class="section-header">
+                    <h2>Gestão de Géneros</h2>
+                    <button class="btn btn-primary" onclick="openModal('generoModal')">
+                        <i class="fas fa-plus"></i> Novo Género
+                    </button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="searchGeneros" placeholder="Pesquisar géneros..." class="search-input">
+                    <button class="search-btn" onclick="searchGeneros()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="generosTableBody">
+                            <!-- Dados carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Autores Tab -->
+            <div id="autores" class="tab-content">
+                <div class="section-header">
+                    <h2>Gestão de Autores</h2>
+                    <button class="btn btn-primary" onclick="openModal('autorModal')">
+                        <i class="fas fa-plus"></i> Novo Autor
+                    </button>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="searchAutores" placeholder="Pesquisar autores..." class="search-input">
+                    <button class="search-btn" onclick="searchAutores()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Descrição</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="autoresTableBody">
+                            <!-- Dados carregados dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Livro Modal -->
+    <div id="livroModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo/Editar Livro</h3>
+                <span class="close" onclick="closeModal('livroModal')">&times;</span>
+            </div>
+            <form id="livroForm" class="modal-form">
+                <input type="hidden" id="livroId" name="id">
+                
+                <div class="form-group">
+                    <label for="livroTitulo">Título *</label>
+                    <input type="text" id="livroTitulo" name="titulo" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="livroIsbn">ISBN *</label>
+                    <input type="text" id="livroIsbn" name="isbn" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="livroAutor">Autor *</label>
+                    <select id="livroAutor" name="autor_id" required>
+                        <option value="">Selecione um autor</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="livroEditora">Editora *</label>
+                    <select id="livroEditora" name="editora_id" required>
+                        <option value="">Selecione uma editora</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="livroGenero">Género *</label>
+                    <select id="livroGenero" name="genero_id" required>
+                        <option value="">Selecione um género</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="livroIdioma">Idioma *</label>
+                    <select id="livroIdioma" name="idioma_id" required>
+                        <option value="">Selecione um idioma</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="livroAno">Ano *</label>
+                    <input type="number" id="livroAno" name="ano" min="1000" max="2024" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="livroDescricao">Descrição</label>
+                    <textarea id="livroDescricao" name="descricao" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="livroStatus">Status</label>
+                    <select id="livroStatus" name="status">
+                        <option value="disponivel">Disponível</option>
+                        <option value="emprestado">Emprestado</option>
+                        <option value="reservado">Reservado</option>
+                        <option value="indisponivel">Indisponível</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('livroModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Utente Modal -->
+    <div id="utenteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo/Editar Utente</h3>
+                <span class="close" onclick="closeModal('utenteModal')">&times;</span>
+            </div>
+            <form id="utenteForm" class="modal-form">
+                <input type="hidden" id="utenteId" name="id">
+                
+                <div class="form-group">
+                    <label for="utenteNome">Nome *</label>
+                    <input type="text" id="utenteNome" name="nome" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="utenteNumeroProcesso">Número de Processo *</label>
+                    <input type="text" id="utenteNumeroProcesso" name="numero_processo" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="utenteTurma">Turma *</label>
+                        <input type="text" id="utenteTurma" name="turma" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="utenteAno">Ano *</label>
+                        <input type="text" id="utenteAno" name="ano" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="utenteEmail">Email</label>
+                    <input type="email" id="utenteEmail" name="email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="utenteCodigoPostal">Código Postal *</label>
+                    <select id="utenteCodigoPostal" name="ut_codpostal" required>
+                        <option value="">Selecione um código postal</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="utenteRua">Rua</label>
+                    <input type="text" id="utenteRua" name="ut_rua">
+                </div>
+                
+                <div class="form-group">
+                    <label for="utenteSenha">Senha</label>
+                    <input type="password" id="utenteSenha" name="senha">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('utenteModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Editora Modal -->
+    <div id="editoraModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Nova/Editar Editora</h3>
+                <span class="close" onclick="closeModal('editoraModal')">&times;</span>
+            </div>
+            <form id="editoraForm" class="modal-form">
+                <input type="hidden" id="editoraId" name="id">
+                
+                <div class="form-group">
+                    <label for="editoraNome">Nome *</label>
+                    <input type="text" id="editoraNome" name="nome" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editoraDescricao">Descrição</label>
+                    <textarea id="editoraDescricao" name="descricao" rows="3"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="editoraCodigoPostal">Código Postal *</label>
+                    <select id="editoraCodigoPostal" name="codigo_postal_id" required>
+                        <option value="">Selecione um código postal</option>
+                    </select>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('editoraModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Código Postal Modal -->
+    <div id="codigoPostalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo/Editar Código Postal</h3>
+                <span class="close" onclick="closeModal('codigoPostalModal')">&times;</span>
+            </div>
+            <form id="codigoPostalForm" class="modal-form">
+                <input type="hidden" id="codigoPostalId" name="id">
+                
+                <div class="form-group">
+                    <label for="codigoPostalCodigo">Código * (formato: 0000-000)</label>
+                    <input type="text" id="codigoPostalCodigo" name="codigo" pattern="[0-9]{4}-[0-9]{3}" placeholder="1234-567" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="codigoPostalLocalidade">Localidade *</label>
+                    <input type="text" id="codigoPostalLocalidade" name="localidade" required>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('codigoPostalModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Idioma Modal -->
+    <div id="idiomaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo/Editar Idioma</h3>
+                <span class="close" onclick="closeModal('idiomaModal')">&times;</span>
+            </div>
+            <form id="idiomaForm" class="modal-form">
+                <input type="hidden" id="idiomaId" name="id">
+                
+                <div class="form-group">
+                    <label for="idiomaNome">Nome *</label>
+                    <input type="text" id="idiomaNome" name="nome" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="idiomaCodigo">Código * (ex: pt-PT)</label>
+                    <input type="text" id="idiomaCodigo" name="codigo" required>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('idiomaModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Género Modal -->
+    <div id="generoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo/Editar Género</h3>
+                <span class="close" onclick="closeModal('generoModal')">&times;</span>
+            </div>
+            <form id="generoForm" class="modal-form">
+                <input type="hidden" id="generoId" name="id">
+                
+                <div class="form-group">
+                    <label for="generoNome">Nome *</label>
+                    <input type="text" id="generoNome" name="nome" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="generoDescricao">Descrição</label>
+                    <textarea id="generoDescricao" name="descricao" rows="3"></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('generoModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Autor Modal -->
+    <div id="autorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Novo/Editar Autor</h3>
+                <span class="close" onclick="closeModal('autorModal')">&times;</span>
+            </div>
+            <form id="autorForm" class="modal-form">
+                <input type="hidden" id="autorId" name="id">
+                
+                <div class="form-group">
+                    <label for="autorNome">Nome *</label>
+                    <input type="text" id="autorNome" name="nome" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="autorDescricao">Descrição</label>
+                    <textarea id="autorDescricao" name="descricao" rows="3"></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('autorModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Devolução Modal -->
+    <div id="devolucaoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Devolver Livro</h3>
+                <span class="close" onclick="closeModal('devolucaoModal')">&times;</span>
+            </div>
+            <form id="devolucaoForm" class="modal-form">
+                <input type="hidden" id="devolucaoRequisicaoId" name="requisicao_id">
+                
+                <div class="form-group">
+                    <label for="estadoLivro">Estado do Livro *</label>
+                    <select id="estadoLivro" name="estado_livro" required>
+                        <option value="bom">Bom - Livro em excelente estado</option>
+                        <option value="regular">Regular - Pequenos sinais de uso</option>
+                        <option value="danificado">Danificado - Danos visíveis</option>
+                        <option value="perdido">Perdido - Livro não foi devolvido</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="observacoesDevolucao">Relatório de Estado</label>
+                    <textarea id="observacoesDevolucao" name="observacoes" rows="4" placeholder="Descreva detalhadamente o estado do livro: páginas rasgadas, capa danificada, anotações, etc."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dataDevolucaoEfetiva">Data de Devolução</label>
+                    <input type="date" id="dataDevolucaoEfetiva" name="data_devolucao_efetiva" value="${new Date().toISOString().split('T')[0]}">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('devolucaoModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Confirmar Devolução</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Aviso de Atraso Modal -->
+    <div id="avisoAtrasoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Enviar Aviso de Atraso</h3>
+                <span class="close" onclick="closeModal('avisoAtrasoModal')">&times;</span>
+            </div>
+            <form id="avisoAtrasoForm" class="modal-form">
+                <input type="hidden" id="avisoRequisicaoId" name="requisicao_id">
+                
+                <div class="form-group">
+                    <label for="emailUtente">Email do Utente</label>
+                    <input type="email" id="emailUtente" name="email" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nomeUtente">Nome do Utente</label>
+                    <input type="text" id="nomeUtente" name="nome" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="tituloLivro">Livro Emprestado</label>
+                    <input type="text" id="tituloLivro" name="livro" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="dataPrevista">Data de Devolução Prevista</label>
+                    <input type="text" id="dataPrevista" name="data_prevista" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="diasAtraso">Dias de Atraso</label>
+                    <input type="text" id="diasAtraso" name="dias_atraso" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="assuntoEmail">Assunto do Email</label>
+                    <input type="text" id="assuntoEmail" name="assunto" value="Aviso de Devolução em Atraso - Biblioteca Escolar">
+                </div>
+                
+                <div class="form-group">
+                    <label for="mensagemEmail">Mensagem</label>
+                    <textarea id="mensagemEmail" name="mensagem" rows="6" placeholder="Digite a mensagem personalizada..."></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('avisoAtrasoModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Enviar Aviso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <span id="notificationText"></span>
+        <button onclick="hideNotification()">&times;</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+

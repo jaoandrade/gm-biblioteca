@@ -1,0 +1,37 @@
+# Arquivos de teste e debug (não necessários para produção)
+teste_*.html
+debug_*.html
+SOLUCAO_*.html
+*_debug.html
+*_teste.html
+
+# Arquivos SQL de desenvolvimento
+*.sql
+
+# Arquivos de documentação de desenvolvimento
+README_*.md
+!README.md
+
+# Arquivos temporários
+*.tmp
+*.temp
+*.log
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node modules (se usar npm)
+node_modules/
+package-lock.json
+
+# Arquivos de backup
+*.bak
+*.backup
+

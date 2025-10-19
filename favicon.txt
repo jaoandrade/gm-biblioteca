@@ -1,0 +1,5 @@
+<!-- Favicon da Escola Ginestal Machado -->
+<!-- Substitua este arquivo pelo favicon real da escola -->
+<!-- Nome: favicon.ico -->
+<!-- Formato: ICO (16x16, 32x32, 48x48 pixels) -->
+<!-- Ou use PNG: favicon.png -->
