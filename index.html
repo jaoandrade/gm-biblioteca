@@ -125,8 +125,10 @@
                     <form id="requisicaoForm" class="form">
                         <div class="form-row">
                             <div class="form-group">
-                                <label for="numeroProcesso">Número de Processo do Utente</label>
-                                <input type="text" id="numeroProcesso" name="numeroProcesso" required>
+                                <label for="numeroProcesso">Utente</label>
+                                <select id="numeroProcesso" name="numeroProcesso" required>
+                                    <option value="">Selecione um utente</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
@@ -150,7 +152,9 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="codigoPostal">Código Postal</label>
-                                <input type="text" id="codigoPostal" name="codigoPostal" required>
+                                <select id="codigoPostal" name="codigoPostal" required>
+                                    <option value="">Selecione um código postal</option>
+                                </select>
                             </div>
                             <div class="form-group">
                                 <label for="dataDevolucaoPrevista">Data de Devolução Prevista</label>

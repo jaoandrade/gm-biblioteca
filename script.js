@@ -306,6 +306,10 @@ async function populateDropdowns() {
         // Popular dropdowns de editoras
         await populateDropdown('editoraCodigoPostal', 'codigos_postais', 'codigo', 'localidade');
         
+        // Popular dropdowns de requisições
+        await populateUtentesRequisicao();
+        await populateCodigosPostaisRequisicao();
+        
     } catch (error) {
         console.error('Erro ao popular dropdowns:', error);
     }
@@ -805,11 +809,12 @@ async function handleRequisicaoSubmit(e) {
         }
         
         // Criar requisição
+        // Nota: codigoPostal agora é o ID do código postal (vindo do select)
         const { error } = await supabase
             .from('requisicoes')
             .insert([{
                 numero_processo: data.numeroProcesso,
-                codigo_postal: data.codigoPostal,
+                codigo_postal: parseInt(data.codigoPostal), // Converter para int se necessário
                 email: data.email,
                 livro_id: parseInt(data.livroId),
                 data_requisicao: new Date().toISOString().split('T')[0],
@@ -827,7 +832,14 @@ async function handleRequisicaoSubmit(e) {
             .eq('id', data.livroId);
         
         showNotification('Requisição criada com sucesso!', 'success');
-        e.target.reset();
+        
+        // Resetar formulário manualmente para preservar dropdowns
+        document.getElementById('numeroProcesso').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('searchLivroRequisicao').value = '';
+        document.getElementById('livroSelecionado').innerHTML = '<option value="">Selecione um livro</option>';
+        document.getElementById('codigoPostal').value = '';
+        document.getElementById('observacoes').value = '';
         
         // Resetar data de devolução
         const today = new Date();
@@ -2035,32 +2047,150 @@ function formatDate(dateString) {
     return date.toLocaleDateString('pt-PT');
 }
 
-// Funções de busca para livros em requisições
-async function searchLivrosParaRequisicao() {
-    const searchTerm = document.getElementById('searchLivroRequisicao').value.toLowerCase();
-    
+// Funções para popular dropdowns de requisições
+async function populateUtentesRequisicao() {
     try {
         const { data, error } = await supabase
-            .from('livros_completos')
-            .select('*')
-            .or(`titulo.ilike.%${searchTerm}%,autor.ilike.%${searchTerm}%,isbn.ilike.%${searchTerm}%`)
-            .eq('status', 'disponivel')
-            .limit(10);
+            .from('utentes')
+            .select('id, numero_processo, nome, email')
+            .order('nome');
             
         if (error) throw error;
+        
+        const select = document.getElementById('numeroProcesso');
+        if (!select) return;
+        
+        // Limpar opções existentes (exceto a primeira)
+        while (select.children.length > 1) {
+            select.removeChild(select.lastChild);
+        }
+        
+        if (data && data.length > 0) {
+            data.forEach(utente => {
+                const option = document.createElement('option');
+                option.value = utente.numero_processo;
+                option.textContent = `${utente.numero_processo} - ${utente.nome}`;
+                option.dataset.email = utente.email || '';
+                select.appendChild(option);
+            });
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar utentes para requisição:', error);
+    }
+}
+
+async function populateCodigosPostaisRequisicao() {
+    try {
+        const { data, error } = await supabase
+            .from('codigos_postais')
+            .select('*')
+            .order('codigo');
+            
+        if (error) throw error;
+        
+        const select = document.getElementById('codigoPostal');
+        if (!select) return;
+        
+        // Limpar opções existentes (exceto a primeira)
+        while (select.children.length > 1) {
+            select.removeChild(select.lastChild);
+        }
+        
+        if (data && data.length > 0) {
+            data.forEach(codigoPostal => {
+                const option = document.createElement('option');
+                option.value = codigoPostal.id;
+                option.textContent = `${codigoPostal.codigo} - ${codigoPostal.localidade}`;
+                select.appendChild(option);
+            });
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar códigos postais para requisição:', error);
+    }
+}
+
+// Funções de busca para livros em requisições
+async function searchLivrosParaRequisicao() {
+    const searchTerm = document.getElementById('searchLivroRequisicao').value.trim();
+    
+    try {
+        if (!searchTerm || searchTerm.length < 2) {
+            // Se o termo de busca for muito curto, limpar o select
+            const select = document.getElementById('livroSelecionado');
+            select.innerHTML = '<option value="">Selecione um livro</option>';
+            return;
+        }
+        
+        // Usar múltiplas queries e combinar resultados
+        // Isso é mais confiável do que usar .or() com ilike
+        const [tituloResult, autorResult, isbnResult] = await Promise.all([
+            supabase
+                .from('livros_completos')
+                .select('*')
+                .ilike('titulo', `%${searchTerm}%`)
+                .eq('status', 'disponivel')
+                .limit(20),
+            supabase
+                .from('livros_completos')
+                .select('*')
+                .ilike('autor', `%${searchTerm}%`)
+                .eq('status', 'disponivel')
+                .limit(20),
+            supabase
+                .from('livros_completos')
+                .select('*')
+                .ilike('isbn', `%${searchTerm}%`)
+                .eq('status', 'disponivel')
+                .limit(20)
+        ]);
+        
+        // Combinar resultados e remover duplicados
+        const allResults = [
+            ...(tituloResult.data || []),
+            ...(autorResult.data || []),
+            ...(isbnResult.data || [])
+        ];
+        
+        // Remover duplicados baseado no ID
+        const uniqueResults = Array.from(
+            new Map(allResults.map(livro => [livro.id, livro])).values()
+        ).slice(0, 20); // Limitar a 20 resultados únicos
+        
+        // Verificar erros
+        if (tituloResult.error || autorResult.error || isbnResult.error) {
+            const error = tituloResult.error || autorResult.error || isbnResult.error;
+            console.error('Erro na query:', error);
+            throw error;
+        }
         
         const select = document.getElementById('livroSelecionado');
         select.innerHTML = '<option value="">Selecione um livro</option>';
         
-        data.forEach(livro => {
+        if (uniqueResults && uniqueResults.length > 0) {
+            uniqueResults.forEach(livro => {
+                const option = document.createElement('option');
+                option.value = livro.id;
+                option.textContent = `${livro.titulo} - ${livro.autor} (${livro.isbn})`;
+                select.appendChild(option);
+            });
+        } else {
             const option = document.createElement('option');
-            option.value = livro.id;
-            option.textContent = `${livro.titulo} - ${livro.autor} (${livro.isbn})`;
+            option.value = '';
+            option.textContent = 'Nenhum livro encontrado';
             select.appendChild(option);
-        });
+        }
         
     } catch (error) {
         console.error('Erro ao buscar livros:', error);
+        showNotification('Erro ao buscar livros. Verifique a consola para mais detalhes.', 'error');
+        
+        // Limpar select em caso de erro
+        const select = document.getElementById('livroSelecionado');
+        if (select) {
+            select.innerHTML = '<option value="">Erro ao buscar livros</option>';
+        }
     }
 }
 
@@ -2095,6 +2225,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchLivroRequisicao');
     if (searchInput) {
         searchInput.addEventListener('input', debounce(searchLivrosParaRequisicao, 300));
+    }
+    
+    // Preencher email automaticamente quando utente é selecionado
+    const utenteSelect = document.getElementById('numeroProcesso');
+    if (utenteSelect) {
+        utenteSelect.addEventListener('change', function() {
+            const selectedOption = this.options[this.selectedIndex];
+            const emailInput = document.getElementById('email');
+            if (selectedOption && emailInput && selectedOption.dataset.email) {
+                emailInput.value = selectedOption.dataset.email;
+            }
+        });
     }
     
     // Testar dropdowns após carregamento (para debug)
